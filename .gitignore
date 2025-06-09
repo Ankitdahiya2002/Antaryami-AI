@@ -47,3 +47,6 @@ dist/
 nosetests.xml
 coverage.xml
 *.cover
+
+# .gitignore
+.env
