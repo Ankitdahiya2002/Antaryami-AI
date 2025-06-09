@@ -1,0 +1,49 @@
+venv/
+__pycache__/
+*.pyc
+.DS_Store
+.env
+# Ignore Python cache files
+__pycache__/
+*.py[cod]
+
+# Ignore virtual environment
+venv/
+
+# Ignore OS files
+.DS_Store
+
+# Ignore environment variables
+.env
+
+# Ignore Streamlit config (optional, if customized locally)
+.streamlit/secrets.toml
+# Ignore log files
+*.log
+
+# Ignore Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Ignore coverage reports
+.coverage
+.coverage.*
+
+# Ignore pytest cache
+.pytest_cache/
+
+# Ignore build artifacts
+build/
+dist/
+*.egg-info/
+
+# Ignore Python wheel files
+*.whl
+
+# Ignore PyInstaller logs and spec files
+*.spec
+*.log
+
+# Ignore test results
+nosetests.xml
+coverage.xml
+*.cover

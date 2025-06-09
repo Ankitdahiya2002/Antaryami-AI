@@ -1,10 +1,7 @@
 import os
-from dotenv import load_dotenv
 import smtplib
 from email.mime.text import MIMEText
 
-# Load environment variables
-load_dotenv()
 
 # Gemini AI Setup
 GEMINI_API_KEY = st.secrets["GEMINI_API_KEY"]
