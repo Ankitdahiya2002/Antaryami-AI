@@ -1,4 +1,5 @@
+pip --upgrade
 streamlit==1.26.1
 google-generativeai==0.1.0
-bcrypt==4.0.1
+passlib[bcrypt]
 pandas==2.0.3
