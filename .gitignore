@@ -18,3 +18,9 @@ venv/
 .vscode/
 .idea/
 .streamlit/secrets.toml
+
+
+*.pyc
+*.db
+antaryami.db
+
