@@ -94,7 +94,7 @@ def auth_page():
                     st.error("Passwords do not match!")
                 else:
                     hashed = hash_password(new_password)
-                    created = create_user(new_email, hashed.decode('utf-8'))
+                    created = create_user(new_email, hashed)
                     if created:
                         st.success("Account created successfully! Please login.")
                         st.session_state.signup_email = ""
