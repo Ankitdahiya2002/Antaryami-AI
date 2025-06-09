@@ -1,8 +1,7 @@
 import streamlit as st
 
 import os
-from dotenv import load_dotenv
-load_dotenv()
+
 
 from src.auth import auth_page
 from src.db import create_tables, save_chat

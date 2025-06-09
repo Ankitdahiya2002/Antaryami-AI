@@ -1,17 +1,16 @@
 import os
 import smtplib
+import streamlit as st
 from email.mime.text import MIMEText
 
 
 # Gemini AI Setup
 GEMINI_API_KEY = st.secrets["GEMINI_API_KEY"]
-print("GEMINI_API_KEY =", GEMINI_API_KEY)
-print("Loaded GEMINI_API_KEY:", bool(GEMINI_API_KEY))
+print("GEMINI_API_KEY Loaded:", bool(GEMINI_API_KEY))
 
 try:
-    import google.generativeai as genai
     if not GEMINI_API_KEY:
-        raise ValueError("GEMINI_API_KEY is not set in .env file.")
+        raise ValueError("GEMINI_API_KEY is not set in Streamlit secrets.")
     genai.configure(api_key=GEMINI_API_KEY)
 except Exception as e:
     print("❌ Failed to configure Gemini:", e)
@@ -45,10 +44,11 @@ def send_email(to_email, subject, body):
     """
     Send an email using SMTP credentials.
     """
-    EMAIL_HOST = os.getenv("EMAIL_HOST")
-    EMAIL_PORT = int(os.getenv("EMAIL_PORT", 587))
-    EMAIL_USER = os.getenv("EMAIL_USER")
-    EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
+    EMAIL_HOST = st.secrets["EMAIL_HOST"]
+    EMAIL_PORT = int(st.secrets.get("EMAIL_PORT", 587))
+    EMAIL_USER = st.secrets["EMAIL_USER"]
+    EMAIL_PASSWORD = st.secrets["EMAIL_PASSWORD"]
+
 
     if not all([EMAIL_HOST, EMAIL_USER, EMAIL_PASSWORD]):
         print("Email credentials are not fully set.")
