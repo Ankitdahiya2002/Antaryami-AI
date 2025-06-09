@@ -33,14 +33,15 @@ def main():
             submit = st.form_submit_button("Send")
 
         if submit and user_input:
-            # Get AI response
-            response = ai_chat_response(user_input)
+            with st.spinner("Thinking... 🤖"):
+                response = ai_chat_response(user_input)
 
             # Append to chat history (user and AI)
             st.session_state.chat_history.append({"user": user_input, "ai": response})
 
             # Save chat in DB
             save_chat(user_email, user_input, response, thread_id=None)
+
 
             # Don't reset st.session_state.input here to avoid error
     

@@ -1,6 +1,7 @@
 import os
 import smtplib
 import streamlit as st
+import google.generativeai as genai
 from email.mime.text import MIMEText
 
 
