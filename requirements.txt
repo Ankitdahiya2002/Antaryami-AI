@@ -3,7 +3,6 @@ google-generativeai
 bcrypt==3.2.2
 passlib[bcrypt]
 pandas
-streamlit_speech_recognition
 googletrans==4.0.0-rc1
 email-validator
 uuid
