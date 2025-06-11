@@ -1,7 +1,7 @@
 import sqlite3
 from datetime import datetime
 
-DB_FILE = "antaryami.db"
+DB_FILE = "omnisicient.db"
 
 def get_connection():
     conn = sqlite3.connect(DB_FILE, check_same_thread=False)
@@ -20,9 +20,12 @@ def create_tables():
         role TEXT DEFAULT 'user',
         blocked INTEGER DEFAULT 0,
         reset_token TEXT,
-        reset_token_expiry DATETIME
+        reset_token_expiry DATETIME,
+        name TEXT,
+        profession TEXT
     )
     """)
+
 
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS chats (
@@ -49,14 +52,17 @@ def create_tables():
     conn.commit()
     conn.close()
 
-def create_user(email, password_hash, role='user'):
+def create_user(email, password_hash, name=None, profession=None, role='user'):
+
     conn = get_connection()
     cursor = conn.cursor()
     try:
-        cursor.execute(
-            "INSERT INTO users (email, password, role) VALUES (?, ?, ?)",
-            (email, password_hash, role)
+        cursor.execute
+        (
+            "INSERT INTO users (email, password, name, profession, role) VALUES (?, ?, ?, ?, ?)",
+            (email, password_hash, name, profession, role)
         )
+
         conn.commit()
         return True
     except sqlite3.IntegrityError:
@@ -64,13 +70,16 @@ def create_user(email, password_hash, role='user'):
     finally:
         conn.close()
 
+
 def get_user(email):
-    conn = get_connection()
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM users WHERE email = ?", (email,))
-    user = cursor.fetchone()
-    conn.close()
-    return user
+    with sqlite3.connect(DB_FILE) as conn:
+
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM users WHERE email = ?", (email,))
+        row = cursor.fetchone()
+        return dict(row) if row else None  # <-- This ensures it's a dict
+
 
 def update_reset_token(email, token, expiry):
     conn = get_connection()

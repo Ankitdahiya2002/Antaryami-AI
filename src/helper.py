@@ -34,11 +34,22 @@ def gemini_model_object(user_input):
 
 
 
-def ai_chat_response(user_input: str) -> str:
+def ai_chat_response(prompt: str) -> str:
     """
-    Wraps the AI response for external use.
+    Send the full prompt including conversation history to Gemini model.
     """
-    return gemini_model_object(user_input)
+    if not genai:
+        return "Gemini is not properly configured. Check API key or SDK."
+    try:
+        model = genai.GenerativeModel("models/gemini-1.5-flash")
+        response = model.generate_content({
+            "parts": [
+                {"text": prompt}
+            ]
+        })
+        return response.text.strip()
+    except Exception as e:
+        return f"Error from Gemini API: {str(e)}"
 
 
 def send_email(to_email, subject, body):
