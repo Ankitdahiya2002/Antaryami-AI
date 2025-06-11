@@ -158,3 +158,4 @@ Database errors:
 Run python setup_admin.py to reinitialize
 Check file permissions
 Email not sending:
+# OMNISICIENT-AI
