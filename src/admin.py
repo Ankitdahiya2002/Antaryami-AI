@@ -1,9 +1,15 @@
 import streamlit as st
 from src.db import get_all_users, block_user, export_chats_to_csv, count_registered_users
-
+from src.email_utils import send_email
 
 def show_admin_panel():
     st.title("👑 OMNISCENT Admin Dashboard")
+
+    # At the bottom of your `show_admin_panel()` function:
+    st.markdown("---")
+    st.subheader("🛠 Admin Utilities")
+    email_tester()
+
 
     # Metrics
     total_users = count_registered_users()
@@ -59,3 +65,13 @@ def show_admin_panel():
     if st.button("Generate CSV"):
         csv_data = export_chats_to_csv()
         st.download_button("Download chat_history.csv", csv_data, "chat_history.csv", mime="text/csv")
+def email_tester():
+    st.text_input("📨 Send Test Email To", key="test_email")
+    if st.button("Send Test Email"):
+        to = st.session_state.get("test_email", "")
+        if to:
+            success = send_email(to, "Test Email from OMNISNT", "<p>This is a test.</p>")
+            if success:
+                st.success("Test email sent!")
+            else:
+                st.error("Failed to send email.")

@@ -3,3 +3,14 @@ google-generativeai
 bcrypt==3.2.2
 passlib[bcrypt]
 pandas
+streamlit_speech_recognition
+googletrans==4.0.0-rc1
+email-validator
+uuid
+openai
+requests
+streamlit==1.35.0
+sqlite3  # optional, built-in for Python but safe to list
+pyaudio
+
+

@@ -22,10 +22,11 @@ def create_tables():
         reset_token TEXT,
         reset_token_expiry DATETIME,
         name TEXT,
-        profession TEXT
+        profession TEXT,
+        verified INTEGER DEFAULT 0,
+        verification_token TEXT
     )
     """)
-
 
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS chats (
@@ -39,30 +40,17 @@ def create_tables():
     )
     """)
 
-    cursor.execute("""
-    CREATE TABLE IF NOT EXISTS reports (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        chat_id INTEGER,
-        reason TEXT,
-        reported_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (chat_id) REFERENCES chats(id)
-    )
-    """)
-
     conn.commit()
     conn.close()
 
-def create_user(email, password_hash, name=None, profession=None, role='user'):
-
+def create_user(email, password_hash, name=None, profession=None, role='user', verification_token=None):
     conn = get_connection()
     cursor = conn.cursor()
     try:
-        cursor.execute
-        (
-            "INSERT INTO users (email, password, name, profession, role) VALUES (?, ?, ?, ?, ?)",
-            (email, password_hash, name, profession, role)
-        )
-
+        cursor.execute("""
+            INSERT INTO users (email, password, name, profession, role, verification_token)
+            VALUES (?, ?, ?, ?, ?, ?)
+        """, (email, password_hash, name, profession, role, verification_token))
         conn.commit()
         return True
     except sqlite3.IntegrityError:
@@ -70,35 +58,50 @@ def create_user(email, password_hash, name=None, profession=None, role='user'):
     finally:
         conn.close()
 
-
 def get_user(email):
-    with sqlite3.connect(DB_FILE) as conn:
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM users WHERE email = ?", (email,))
+    row = cursor.fetchone()
+    conn.close()
+    return dict(row) if row else None
 
-        conn.row_factory = sqlite3.Row
-        cursor = conn.cursor()
-        cursor.execute("SELECT * FROM users WHERE email = ?", (email,))
-        row = cursor.fetchone()
-        return dict(row) if row else None  # <-- This ensures it's a dict
-
+def verify_user_token(token):
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM users WHERE verification_token = ?", (token,))
+    user = cursor.fetchone()
+    if user:
+        cursor.execute("""
+            UPDATE users
+            SET verified = 1,
+                verification_token = NULL
+            WHERE verification_token = ?
+        """, (token,))
+        conn.commit()
+        conn.close()
+        return True
+    conn.close()
+    return False
 
 def update_reset_token(email, token, expiry):
     conn = get_connection()
     cursor = conn.cursor()
-    cursor.execute("UPDATE users SET reset_token = ?, reset_token_expiry = ? WHERE email = ?", (token, expiry, email))
+    cursor.execute(
+        "UPDATE users SET reset_token = ?, reset_token_expiry = ? WHERE email = ?",
+        (token, expiry.strftime('%Y-%m-%d %H:%M:%S'), email)
+    )
     conn.commit()
     conn.close()
 
 def reset_password(email, new_password_hash):
     conn = get_connection()
     cursor = conn.cursor()
-    cursor.execute("UPDATE users SET password = ?, reset_token = NULL, reset_token_expiry = NULL WHERE email = ?", (new_password_hash, email))
-    conn.commit()
-    conn.close()
-
-def block_user(email, block=True):
-    conn = get_connection()
-    cursor = conn.cursor()
-    cursor.execute("UPDATE users SET blocked = ? WHERE email = ?", (1 if block else 0, email))
+    cursor.execute("""
+        UPDATE users 
+        SET password = ?, reset_token = NULL, reset_token_expiry = NULL 
+        WHERE email = ?
+    """, (new_password_hash, email))
     conn.commit()
     conn.close()
 
@@ -123,15 +126,19 @@ def get_user_chats(user_email):
 def get_all_users():
     conn = get_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT email, role, blocked FROM users")
+    cursor.execute("SELECT * FROM users")
     users = cursor.fetchall()
     conn.close()
-    return users
+    return [dict(user) for user in users]  # ensure list of dicts
 
-def report_chat(chat_id, reason):
+def is_user_verified(email):
+    user = get_user(email)
+    return user and user.get("verified") == 1
+
+def block_user(email, block=True):
     conn = get_connection()
     cursor = conn.cursor()
-    cursor.execute("INSERT INTO reports (chat_id, reason) VALUES (?, ?)", (chat_id, reason))
+    cursor.execute("UPDATE users SET blocked = ? WHERE email = ?", (1 if block else 0, email))
     conn.commit()
     conn.close()
 
